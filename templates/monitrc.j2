@@ -1,0 +1,49 @@
+# {{ ansible_managed }}
+
+set daemon {{ monit_daemon }}
+{% if monit_start_delay -%}
+    with start delay {{ monit_daemon * 2 }}
+{% endif %}
+
+set logfile {{ monit_log_file }}
+set pidfile {{ monit_pid_file }}
+set idfile {{ monit_id_file }}
+set statefile {{ monit_state_file }}
+
+{% if monit_smtp -%}
+set mailserver
+    {{ monit_smtp_host | default(mail_smtp_server.split(':')[0]) }}
+    port {{ monit_smtp_port | default(mail_smtp_server.split(':')[-1]) }}
+
+    {% if (monit_smtp_username is defined or mail_user is defined) and (vault_monit_smtp_password is defined or vault_mail_password is defined) -%}
+    username "{{ monit_smtp_username | default(mail_user) }}"
+    password "{{ vault_monit_smtp_password | default(vault_mail_password) }}"
+    {% endif -%}
+    using hostname "{{ monit_smtp_hostname | default(mail_hostname) }}"
+
+set mail-format { from: {{ monit_smtp_sender_address | default(mail_admin) }} }
+set alert {{ monit_smtp_sysadmin_email }}
+    {% if monit_alert_filters -%}
+    not on {
+        {%- for item in monit_alert_filters %} {{ item }}, {% endfor -%}
+    }
+    {% endif %}
+{% endif %}
+
+{% if monit_event_queue -%}
+set eventqueue
+    basedir /var/lib/monit/events
+    slots 100
+
+{% endif -%}
+
+{% if monit_httpd -%}
+set httpd port {{ monit_httpd_port }} and
+    {% if monit_httpd_nginx -%}
+    use address localhost
+    allow localhost
+    {% endif -%}
+    allow {{ monit_httpd_username }}:"{{ vault_monit_httpd_password }}"
+
+{% endif -%}
+include {{ monit_path }}/conf.d/*

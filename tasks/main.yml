@@ -1,0 +1,74 @@
+---
+- name: Install the package "monit"
+  apt:
+    name: monit
+    state: present
+    force: yes
+
+- name: Ensure sysadmin email are defined
+  fail:
+    msg: Variable monit_smtp_sysadmin_email is missing.
+  when: monit_smtp and monit_smtp_sysadmin_email is not defined
+
+- name: Create monitrc
+  template:
+    src: "monitrc.j2"
+    dest: "{{ monit_path }}/monitrc"
+  notify: reload monit
+
+- name: Create monit nginx config
+  template:
+    src: "monit-nginx.j2"
+    dest: "{{ nginx_path }}/sites-available/monit.conf"
+  when: monit_httpd and monit_httpd_nginx
+  notify: reload nginx
+
+- name: Enable Monit web interface
+  file:
+    src: "{{ nginx_path }}/sites-available/monit.conf"
+    dest: "{{ nginx_path }}/sites-enabled/monit.conf"
+    owner: root
+    group: root
+    state: link
+  when: monit_httpd and monit_httpd_nginx
+  notify: reload nginx
+
+
+- name: Build list of Monit configurations
+  find:
+    paths:
+      - "{{ monit_configuration_path }}"
+    pattern: "*.conf.j2"
+    recurse: yes
+  become: no
+  connection: local
+  register: monit_configurations
+
+- name: Monit configuration out to conf.d
+  template:
+    src: "{{ item }}"
+    dest: "{{ monit_path }}/conf.d/{{ item | regex_replace(monit_configuration_pattern, '\\2') }}"
+  with_items: "{{ monit_configurations.files | map(attribute='path') | list | sort(True) }}"
+  notify: reload monit
+
+- name: Retrieve list of existing files in conf.d
+  find:
+    paths: "{{ monit_path }}/conf.d"
+    pattern: "*.conf"
+    recurse: yes
+  register: monit_configuration_existing
+  when: monit_configuration_cleanup
+
+
+- name: Remove unmanaged files from conf.d
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items: "{{ monit_configuration_existing.files | default({}) | map(attribute='path') |
+                  difference(monit_configurations.files | map(attribute='path') |
+                    map('regex_replace', monit_configuration_pattern, monit_path + '/conf.d/\\2') | unique
+                  ) | list
+               }}"
+  when: monit_configuration_cleanup
+  notify: reload monit
+

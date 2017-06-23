@@ -1,0 +1,17 @@
+galaxy_info:
+  author: Alexandre Côté
+  description: Install and configure Monit service in Trellis.
+  company: 2KLOC Inc.
+  license: MIT
+  min_ansible_version: 2.2
+  platforms:
+  - name: Ubuntu
+    versions:
+      - xenial
+  galaxy_tags:
+    - roots
+    - trellis
+    - monit
+    - monitoring
+    - system
+dependencies: []
