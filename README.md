@@ -14,7 +14,7 @@ Add the role to the requirements.yml file of Trellis :
   version: 1.0.0
 ```
 
-Run ansible-galaxy install -r requirements.yml to install the new role.
+Run `ansible-galaxy install -r requirements.yml` to install the new role.<br>
 Then, add the roles to the server.yml :
 ```yaml
 roles:
@@ -22,19 +22,57 @@ roles:
     - { role: 2kloc.trellis-monit, tags: [monit]}
 ```
 
+By default, the role will copy all monit configuration file located in the
+`monit` folder at the root of the Trellis project.
+
+```
+monit
+│   nginx.conf.j2
+│   mysql.conf.j2
+│   memcached.conf.j2
+│   php7.1-fpm.conf.j2
+│   ...
+```
+
+Here a really basic example for the Nginx service
+```
+check process nginx with pidfile /var/run/nginx.pid
+    start program = "/etc/init.d/nginx start"
+    stop program  = "/etc/init.d/nginx stop"
+    group www-data
+```
+Check out the [Monit doccumentation](https://mmonit.com/wiki/Monit/ConfigurationExamples) for other examples.
+
+
+
 Role Variables
 --------------
+You can use thoses variables to configure Monit like you want.
+
 ```yaml
+
+# Check service every X seconds
 monit_daemon: 120
+
+# Delay the first service check
 monit_start_delay: false
+
+# Path of monit files
 monit_log_file: /var/log/monit.log
 monit_pid_file: /var/run/monit.pid
 monit_id_file: /var/lib/monit/id
 monit_state_file: /var/lib/monit/state
+
+# Event queue setup (Use if mail server not available)
 monit_event_queue: true
 monit_event_queue_file: /var/lib/monit/events
 monit_event_queue_limit: 100
+
+# Active mail server for alert delivery
 monit_smtp: false
+
+# If you active the mail server, you will need to define the sysadmin email
+# with `monit_smtp_sysadmin_email` variable
 
 # The role will use the Trellis mail variable by default but you can overwrite it
 # monit_smtp_host: "mail.bar.baz"
@@ -44,23 +82,40 @@ monit_smtp: false
 # monit_smtp_hostname: "mail.bar"
 # monit_smtp_sender_address: "admin@mail.bar"
 
+# You can avoid getting alerts with this filter
+# monit_alert_filters:
+#   - instance
+#   - action
 monit_alert_filters: []
+
+# Enable Web Interface
 monit_httpd: false
-monit_httpd_nginx: true
+
+# Set the port for the Web Interface
 monit_httpd_port: 2812
+
+# Set the credentiels for the Web Interface
 monit_httpd_username: admin
 vault_monit_httpd_password: monit
+
+# Create a Nginx configuration for the web interface
+monit_httpd_nginx: true
+
+# Set the server_name for Nginx configuration
 monit_httpd_server_name: host.example.com
 monit_httpd_location: /monit/
+
+# Set the folder with services monitoring files
 monit_configuration_path: monit
-monit_configuration_pattern: "^({{ monit_configuration_path | regex_escape }})/(.*)\\.j2$"
+
+# Use to delete all files missing a corresponding template in your local machine's
 monit_configuration_cleanup: true
 ```
+
 
 License
 -------
 
 MIT
-
 (C) [2KLOC](https://github.com/2koc) 2017.
 ------------------
