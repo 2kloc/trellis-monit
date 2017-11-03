@@ -15,11 +15,11 @@ Add the role to the requirements.yml file of Trellis :
 ```
 
 Run `ansible-galaxy install -r requirements.yml` to install the new role.<br>
-Then, add the roles to the server.yml :
+Then, add the role into server.yml :
 ```yaml
 roles:
     ... other Trellis roles ...
-    - { role: 2kloc.trellis-monit, tags: [monit]}
+    - { role: trellis-monit, tags: [monit]}
 ```
 
 By default, the role will copy all monit configuration file located in the
@@ -41,13 +41,12 @@ check process nginx with pidfile /var/run/nginx.pid
     stop program  = "/etc/init.d/nginx stop"
     group www-data
 ```
-Check out the [Monit doccumentation](https://mmonit.com/wiki/Monit/ConfigurationExamples) for other examples.
-
-
+Check out the [Monit documentation](https://mmonit.com/wiki/Monit/ConfigurationExamples) for other examples.
 
 Role Variables
 --------------
-You can use thoses variables to configure Monit like you want.
+You can use these variables to configure Monit like you want.
+The variables could be add into `group_vars/all/main.yml`
 
 ```yaml
 
@@ -112,10 +111,9 @@ monit_configuration_path: monit
 monit_configuration_cleanup: true
 ```
 
-
 License
 -------
 
 MIT
-(C) [2KLOC](https://github.com/2koc) 2017.
+(C) [2KLOC](https://github.com/2kloc) 2017.
 ------------------
