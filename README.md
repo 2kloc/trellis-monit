@@ -115,5 +115,5 @@ License
 -------
 
 MIT
-(C) [2KLOC](https://github.com/2kloc) 2017.
+(C) [2KLOC](https://github.com/2kloc) 2018.
 ------------------
