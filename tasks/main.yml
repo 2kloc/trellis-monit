@@ -15,16 +15,19 @@
     mode: 0700
     path: "{{ monit_ssl_directory_name }}"
     state: directory
+  when: monit_httpd and monit_httpd_nginx
 
 - name: Generate a the private key
   openssl_privatekey:
     path: "{{ monit_ssl_directory_name }}/{{ monit_httpd_server_name }}.pem"
     size: 2048
+  when: monit_httpd and monit_httpd_nginx
 
 - name: Generate a the signing request
   openssl_csr:
     path: "{{ monit_ssl_directory_name }}/{{ monit_httpd_server_name }}.csr"
     privatekey_path: "{{ monit_ssl_directory_name }}/{{ monit_httpd_server_name }}.pem"
+  when: monit_httpd and monit_httpd_nginx
 
 - name: Generate a Self Signed OpenSSL certificate
   openssl_certificate:
@@ -32,6 +35,7 @@
     privatekey_path: "{{ monit_ssl_directory_name }}/{{ monit_httpd_server_name }}.pem"
     csr_path: "{{ monit_ssl_directory_name }}/{{ monit_httpd_server_name }}.csr"
     provider: selfsigned
+  when: monit_httpd and monit_httpd_nginx
 
 - name: Create monitrc
   template:

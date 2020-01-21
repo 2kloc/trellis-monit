@@ -11,7 +11,7 @@ Add the role to the `galaxy.yml` file of Trellis :
 ```yaml
 - name: trellis-monit
   src: 2kloc.trellis-monit
-  version: 1.0.0
+  version: 1.1.1
 ```
 
 Run `ansible-galaxy install -r galaxy.yml` to install the new role.<br>
@@ -92,6 +92,9 @@ monit_httpd: false
 
 # Set the port for the Web Interface
 monit_httpd_port: 2812
+
+# Set the ssl directory for the Web Interface
+monit_ssl_directory_name: "{{ nginx_path }}/ssl/monit"
 
 # Set the credentiels for the Web Interface
 monit_httpd_username: admin
