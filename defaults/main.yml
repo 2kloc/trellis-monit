@@ -27,6 +27,7 @@ monit_alert_filters: []
 monit_httpd: false
 monit_httpd_nginx: true
 monit_httpd_port: 2812
+monit_ssl_directory_name: "{{ nginx_path }}/ssl/monit"
 monit_httpd_username: admin
 vault_monit_httpd_password: monit
 monit_httpd_server_name: host.example.com

@@ -10,6 +10,29 @@
     msg: Variable monit_smtp_sysadmin_email is missing.
   when: monit_smtp and monit_smtp_sysadmin_email is not defined
 
+- name: Create SSL directory
+  file:
+    mode: 0700
+    path: "{{ monit_ssl_directory_name }}"
+    state: directory
+
+- name: Generate a the private key
+  openssl_privatekey:
+    path: "{{ monit_ssl_directory_name }}/{{ monit_httpd_server_name }}.pem"
+    size: 2048
+
+- name: Generate a the signing request
+  openssl_csr:
+    path: "{{ monit_ssl_directory_name }}/{{ monit_httpd_server_name }}.csr"
+    privatekey_path: "{{ monit_ssl_directory_name }}/{{ monit_httpd_server_name }}.pem"
+
+- name: Generate a Self Signed OpenSSL certificate
+  openssl_certificate:
+    path: "{{ monit_ssl_directory_name }}/{{ monit_httpd_server_name }}.crt"
+    privatekey_path: "{{ monit_ssl_directory_name }}/{{ monit_httpd_server_name }}.pem"
+    csr_path: "{{ monit_ssl_directory_name }}/{{ monit_httpd_server_name }}.csr"
+    provider: selfsigned
+
 - name: Create monitrc
   template:
     src: "monitrc.j2"

@@ -7,14 +7,14 @@ It configure Monit on the server and allow you to monitor any services.
 
 Get Started
 ----------------
-Add the role to the requirements.yml file of Trellis :
+Add the role to the `galaxy.yml` file of Trellis :
 ```yaml
 - name: trellis-monit
   src: 2kloc.trellis-monit
   version: 1.0.0
 ```
 
-Run `ansible-galaxy install -r requirements.yml` to install the new role.<br>
+Run `ansible-galaxy install -r galaxy.yml` to install the new role.<br>
 Then, add the role into server.yml :
 ```yaml
 roles:
@@ -110,10 +110,3 @@ monit_configuration_path: monit
 # Use to delete all files missing a corresponding template in your local machine's
 monit_configuration_cleanup: true
 ```
-
-License
--------
-
-MIT
-(C) [2KLOC](https://github.com/2kloc) 2018.
-------------------
